@@ -152,6 +152,7 @@ text_admin_help = """/add idtelegram НомерГруппы УровеньОбр
 """
 
 # Родной
+# 1913038657:AAGBUpXae9gnCOka4Kz0xKCQ2t_n1TiFhZA
 bot = telebot.TeleBot('698328096:AAGj3J9OxEi0DeLCjYpaka3uHor67rd0oOg')
 
 OBR = ['None', 'Бакалавр', 'Магистр', 'Аспирант', 'Админ']
