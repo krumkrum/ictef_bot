@@ -4,6 +4,7 @@ except:
     import _sqlite3 as sqlite3
 
 from random import randint as rn
+
 # pK1zH2lI1vxM0x
 me = 230915398
 
@@ -42,7 +43,6 @@ class DB:
 
         self.conn.commit()
 
-
     # get students_by_group
     def find_student_by_group(self, group):
         cursor = self.conn.cursor()
@@ -62,8 +62,8 @@ class DB:
 
     def find_student_by_level_course(self, course):
         cursor = self.conn.cursor()
-            
-        sql = "SELECT id FROM users WHERE course ={}".format(course)        
+
+        sql = "SELECT id FROM users WHERE course ={}".format(course)
 
         cursor.execute(sql)
         return cursor.fetchall()
@@ -91,29 +91,5 @@ class DB:
         return b
 
 
-
 if __name__ == '__main__':
     pass
-    # db = DB()
-    #
-    # for i in range(100):
-    #     db.add_student(rn(0, 10), ''.format(rn(500, 600)), rn(0, 5), rn(0,5))
-    #
-    # data = db.find_student_by_level_eduaction(2)
-    # for i in data:
-    #     print(i)
-    # print('-'*10)
-    #
-    # data = db.find_student_by_group(2)
-    # for i in data:
-    #     print(i)
-    # print('-' * 10)
-    #
-    # data = db.find_student_by_level_course(2)
-    # for i in data:
-    #     print(i)
-    # print('-' * 10)
-    #
-    # data = db.get_all_student()
-    # for i in data:
-    #     print(i)
