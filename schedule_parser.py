@@ -22,8 +22,8 @@ def get_week_range():
 
 
 def is_group(message):
-    pattern = r"\d{3}\s?\d{0,3}(\.\d{3}(-\d{3})?|\.\d{3}М)"
-    if re.match(pattern, message.text):
+    pattern = r"\d{1,3}(?:\.\d{3}(?:-\d)?|\.\d{3}М|)"
+    if re.match(pattern, message):
         return True
     else:
         return False
@@ -147,6 +147,13 @@ class SchedulePage:
 if __name__ == '__main__':
     final_messange = """"""
     day_messange = """{} {} {} {} {}"""
-    sp = SchedulePage()
-    for msg in sp.get_messange():
-        print(msg)
+    sp = SchedulePage('508')
+    # for msg in sp.get_messange():
+    #     print(msg)
+    print(len(sp.parse_groups().keys()))
+
+    for key in sp.parse_groups().keys():
+        print(key, is_group(str(key)))
+        print("507", is_group("507"))
+
+#'5.101', '5.101М', '5.103', '5.103М', '5.105-1', '5.105-2(у)', '5.105М', '5.107-1', '5.107-2', '5.107-3', '5.107М', '5.109М', '5.201', '5.201М', '5.203', '5.203М', '5.205-1', '5.205-2', '5.205М', '5.206М', '5.207-1', '5.207-2', '5.207-3', '5.207М', '5.209М', '501', '501М', '503', '505', '506', '507', '508', '581', '583М', '591', '593', '595', '597', '598'
