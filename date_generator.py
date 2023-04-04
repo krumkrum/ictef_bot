@@ -1,18 +1,21 @@
 from datetime import datetime, timedelta
 
 
-start_date = datetime.strptime('20230101', '%Y%m%d')
-end_date = datetime.strptime('20231231', '%Y%m%d')
+def get_week_range():
+    date_format = '%Y%m%d'
+    current_date = datetime.now()
 
-delta = timedelta(days=7)
-week_start_dates = []
-week_end_dates = []
+    current_week_start = current_date - timedelta(days=current_date.weekday())
+    current_week_end = current_week_start + timedelta(days=6)
 
-while start_date <= end_date:
-    week_start_dates.append(start_date)
-    week_end_dates.append(start_date + timedelta(days=6))
-    start_date += delta
+    last_week_end = current_week_start - timedelta(days=1)
+    last_week_start = last_week_end - timedelta(days=6)
 
-for i in range(len(week_start_dates)):
-    print(f"Week {i+1}: {week_start_dates[i].strftime('%Y%m%d')}-{week_end_dates[i].strftime('%Y%m%d')}")
-# date_range.append((self.week_start.strftime('%Y%m%d'), self.week_end.strftime('%Y%m%d')))
+    return [
+        last_week_start.strftime(date_format) + '-' + last_week_end.strftime(date_format),
+        current_week_start.strftime(date_format) + '-' + current_week_end.strftime(date_format)
+    ]
+
+
+week_range = get_week_range()
+print(week_range)
