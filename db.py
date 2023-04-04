@@ -1,95 +1,147 @@
-try:
-    import sqlite3
-except:
-    import _sqlite3 as sqlite3
-
+import sqlite3
 from random import randint as rn
+
+# Constants
+DAY_IN_SECONDS = 86400
+HOUR_IN_SECONDS = 3600
 
 # pK1zH2lI1vxM0x
 me = 230915398
 
 
+import sqlite3
+
+
+import sqlite3
+from random import randint as rn
+
+# Constants
+DAY_IN_SECONDS = 86400
+HOUR_IN_SECONDS = 3600
+
+# pK1zH2lI1vxM0x
+me = 230915398
+
+
+import sqlite3
+
+
 class DB:
     def __init__(self):
         self.conn = sqlite3.connect("asu_bot.db")
-        self.name = "users"
-        self.day = 86400
-        self.hour = 3600
         self.create_base()
 
-    # id int group text p int
-    # tg 130123 598 1 1
-    # p 0 None
-    # p 1 - bakalavr
-    # p 2 - magistr
-    # p 3 - asper
-    # p 4 admin
-
     def create_base(self):
-        cursor = self.conn.cursor()
+        """
+        Creates the `users` table if it does not exist, and adds a default student to the table.
+        """
+
         try:
-            cursor.execute("""CREATE TABLE users 
-            (id int, gp text, level_e int, course int)""")
-            self.add_student(230915398, str(598), 4, 3)
+            with self.conn:
+                self.conn.execute(
+                    """CREATE TABLE IF NOT EXISTS users (
+                        id INTEGER, 
+                        username TEXT, 
+                        "group" TEXT, 
+                        phone_number TEXT
+                    )""")
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
-        except:
-            return 0
+        self.add_student(230915398, "Vladimir", "admin", "+79609566753")
 
-    def add_student(self, id, username=None, group=-1, course=-1):
+    def add_student(self, chat_id, username, group, phone_number):
+        """
+        Adds a new student to the `users` table.
+        """
+        try:
+            with self.conn:
+                self.conn.execute(
+                    "INSERT INTO users VALUES (?, ?, ?, ?)",
+                    (chat_id, username, group, phone_number)
+                )
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
-        cursor = self.conn.cursor()
+    def get_user(self, chat_id):
+        """
+        Retrieves a user from the `users` table by their chat ID.
+        """
+        try:
+            with self.conn:
+                cursor = self.conn.execute("SELECT * FROM users WHERE id=?", (chat_id,))
+                user_data = cursor.fetchone()
+                if user_data:
+                    return {"id": user_data[0],
+                            "username": user_data[1],
+                            "group": user_data[2],
+                            "phone_number": user_data[3]
+                            }
+                else:
+                    return None
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
-        cursor.execute(f"INSERT INTO users VALUES ('{id}', '{username}', '{group}','{course}')")
-
-        self.conn.commit()
-
-    # get students_by_group
-    def find_student_by_group(self, group):
-        cursor = self.conn.cursor()
-
-        sql = "SELECT id FROM users WHERE gp = {}".format(group)
-
-        cursor.execute(sql)
-        return cursor.fetchall()
-
-    def find_student_by_level_eduaction(self, level):
-        cursor = self.conn.cursor()
-
-        sql = "SELECT id FROM users WHERE level_e ={}".format(level)
-
-        cursor.execute(sql)
-        return cursor.fetchall()
-
-    def find_student_by_level_course(self, course):
-        cursor = self.conn.cursor()
-
-        sql = "SELECT id FROM users WHERE course ={}".format(course)
-
-        cursor.execute(sql)
-        return cursor.fetchall()
+    def find_students_by_field(self, field, value):
+        """
+        Finds students in the `users` table where the given `field` matches the given `value`.
+        Returns a list of the matching students, where each student is in the format of `get_user`.
+        """
+        try:
+            with self.conn:
+                sql = f"SELECT * FROM users WHERE {field} = ?"
+                cursor = self.conn.execute(sql, (value,))
+                students = cursor.fetchall()
+                return [{"id": s[0],
+                         "username": s[1],
+                         "group": s[2],
+                         "phone_number": s[3]
+                        } for s in students]
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
     def get_admins(self):
-        cursor = self.conn.cursor()
+        """
+        Finds all admin-level students in the `users` table.
+        Returns a list of the matching students, where each student is in the format of `get_user`.
+        """
+        try:
+            with self.conn:
+                sql = "SELECT * FROM users WHERE group = ?"
+                cursor = self.conn.execute(sql, ("admin",))
+                admins = cursor.fetchall()
+                return [{"id": a[0],
+                         "username": a[1],
+                         "group": a[2],
+                         "phone_number": a[3]
+                        } for a in admins]
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
-        sql = "SELECT id FROM users WHERE level_e=4"
+    def get_all_students(self):
+        """
+        Retrieves all students from the base
+        """
+        try:
+            with self.conn:
+                sql = f"SELECT * FROM users"
+                cursor = self.conn.execute(sql)
+                students = cursor.fetchall()
+                return [{"id": s[0],
+                         "username": s[1],
+                         "group": s[2],
+                         "phone_number": s[3]
+                         } for s in students]
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
 
-        cursor.execute(sql)
-
-        b = cursor.fetchall()
-
-        return b
-
-    def get_all_student(self):
-        cursor = self.conn.cursor()
-
-        sql = "SELECT * FROM users"
-
-        cursor.execute(sql)
-
-        b = cursor.fetchall()
-
-        return b
+    def close(self):
+        """
+        Closes the database connection.
+        """
+        self.conn.close()
 
 
 if __name__ == '__main__':
-    pass
+    d = DB()
+    print(d.get_user(230915398))
