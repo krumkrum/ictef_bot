@@ -1,16 +1,43 @@
 import requests
 from bs4 import BeautifulSoup as bs
 import re
+from datetime import datetime, timedelta
+
+
+def get_week_range():
+    date_format = '%Y%m%d'
+    current_date = datetime.now()
+
+    current_week_start = current_date - timedelta(days=current_date.weekday())
+    current_week_end = current_week_start + timedelta(days=6)
+
+    last_week_end = current_week_start - timedelta(days=1)
+    last_week_start = last_week_end - timedelta(days=6)
+
+    return {
+        "0": "",
+        "-1": last_week_start.strftime(date_format) + '-' + last_week_end.strftime(date_format),
+        "1": current_week_start.strftime(date_format) + '-' + current_week_end.strftime(date_format)
+    }
+
+
+def is_group(message):
+    pattern = r"\d{3}\s?\d{0,3}(\.\d{3}(-\d{3})?|\.\d{3}М)"
+    if re.match(pattern, message.text):
+        return True
+    else:
+        return False
 
 
 class SchedulePage:
-    def __init__(self, inc: str = "19", group: str = "508"):
+    def __init__(self, inc: str = "19", group: str = "508", date="0"):
         self.inc = inc
         self.group = group
         self.group_list_url = "https://www.asu.ru/timetable/students/{}/".format(self.inc)
         self.groups = self.parse_groups()
         self.group_id = self.groups[group]
-        self.url = "https://www.asu.ru/timetable/students/{}/{}/".format(self.inc, self.group_id)
+        self.date = get_week_range()
+        self.url = "https://www.asu.ru/timetable/students/{0}/{1}?date={2}".format(self.inc, self.group_id, self.date[date])
 
     def prepare_url(self, inc: str, group: str):
         if inc is None:
@@ -25,8 +52,8 @@ class SchedulePage:
         return requests.get(self.group_list_url).text
 
     def get_schedule_page(self):
-        print(self.group_list_url + self.group_id)
-        return requests.get(self.group_list_url + self.group_id).text
+        print(self.url)
+        return requests.get(self.url).text
 
     def parse_groups(self):
         page = self.get_group_list_page()
