@@ -9,23 +9,6 @@ HOUR_IN_SECONDS = 3600
 me = 230915398
 
 
-import sqlite3
-
-
-import sqlite3
-from random import randint as rn
-
-# Constants
-DAY_IN_SECONDS = 86400
-HOUR_IN_SECONDS = 3600
-
-# pK1zH2lI1vxM0x
-me = 230915398
-
-
-import sqlite3
-
-
 class DB:
     def __init__(self):
         self.conn = sqlite3.connect("asu_bot.db")
@@ -43,25 +26,29 @@ class DB:
                         id INTEGER, 
                         username TEXT, 
                         "group" TEXT, 
-                        phone_number TEXT
+                        phone_number TEXT,
+                        role TEXT
                     )""")
         except sqlite3.Error as e:
             print("An error occurred:", e)
 
-        self.add_student(230915398, "Vladimir", "admin", "+79609566753")
+        # self.add_student(230915398, "Vladimir", "598", "+79609566753", "admin")
 
-    def add_student(self, chat_id, username, group, phone_number):
+    def add_student(self, chat_id, username, group, phone_number, role):
         """
         Adds a new student to the `users` table.
         """
-        try:
-            with self.conn:
-                self.conn.execute(
-                    "INSERT INTO users VALUES (?, ?, ?, ?)",
-                    (chat_id, username, group, phone_number)
-                )
-        except sqlite3.Error as e:
-            print("An error occurred:", e)
+        if not self.get_user(chat_id):
+            try:
+                with self.conn:
+                    self.conn.execute(
+                        "INSERT INTO users VALUES (?, ?, ?, ?, ?)",
+                        (chat_id, username, group, phone_number, role)
+                    )
+            except sqlite3.Error as e:
+                print("An error occurred:", e)
+        else:
+            print(f"User with chat_id {chat_id} already exists in the database.")
 
     def get_user(self, chat_id):
         """
@@ -75,7 +62,8 @@ class DB:
                     return {"id": user_data[0],
                             "username": user_data[1],
                             "group": user_data[2],
-                            "phone_number": user_data[3]
+                            "phone_number": user_data[3],
+                            "role": user_data[4]
                             }
                 else:
                     return None
@@ -95,8 +83,9 @@ class DB:
                 return [{"id": s[0],
                          "username": s[1],
                          "group": s[2],
-                         "phone_number": s[3]
-                        } for s in students]
+                         "phone_number": s[3],
+                         "role": s[4]
+                         } for s in students]
         except sqlite3.Error as e:
             print("An error occurred:", e)
 
@@ -113,12 +102,13 @@ class DB:
                 return [{"id": a[0],
                          "username": a[1],
                          "group": a[2],
-                         "phone_number": a[3]
-                        } for a in admins]
+                         "phone_number": a[3],
+                         "role": a[4]
+                         } for a in admins]
         except sqlite3.Error as e:
             print("An error occurred:", e)
 
-    def get_all_students(self):
+    def get_all(self):
         """
         Retrieves all students from the base
         """
@@ -126,12 +116,50 @@ class DB:
             with self.conn:
                 sql = f"SELECT * FROM users"
                 cursor = self.conn.execute(sql)
-                students = cursor.fetchall()
-                return [{"id": s[0],
-                         "username": s[1],
-                         "group": s[2],
-                         "phone_number": s[3]
-                         } for s in students]
+                users = cursor.fetchall()
+                return [{"id": u[0],
+                         "username": u[1],
+                         "group": u[2],
+                         "phone_number": u[3],
+                         "role": u[4]
+                         } for u in users]
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
+
+    def update_user_group_by_id(self, chat_id, new_group):
+        """
+        Updates the group of a user in the `users` table by their chat ID.
+        """
+        try:
+            with self.conn:
+                self.conn.execute(
+                    "UPDATE users SET 'group'=? WHERE id=?",
+                    (new_group, chat_id)
+                )
+        except sqlite3.Error as e:
+            print("An error occurred:", e)
+
+    def is_admin(self, chat_id):
+        """
+        Returns True if the user with the given chat_id has "admin" role, False otherwise.
+        """
+        user = self.get_user(chat_id)
+        print(user["role"])
+        if user and user["role"] == "admin":
+            return True
+        else:
+            return False
+
+    def update_user_role_by_id(self, chat_id):
+        """
+        Updates the role of a user in the `users` table by their chat ID to "admin".
+        """
+        try:
+            with self.conn:
+                self.conn.execute(
+                    "UPDATE users SET role=? WHERE id=?",
+                    ("admin", chat_id)
+                )
         except sqlite3.Error as e:
             print("An error occurred:", e)
 
@@ -145,3 +173,4 @@ class DB:
 if __name__ == '__main__':
     d = DB()
     print(d.get_user(230915398))
+    d.update_user_role_by_id(230915398)
