@@ -147,7 +147,7 @@ class AsuBot:
                 self.bot.send_message(chat_id, BotMessange.DOMINTORY)
 
             elif message.text == BotMessange.START_TEXT[3]:
-                self.bot.send_message(chat_id, BotMessange.CONTACT)
+                self.bot.send_message(chat_id, BotMessange.CONTACT, parse_mode="HTML")
 
             elif message.text == BotMessange.START_TEXT[4]:
                 self.bot.send_message(chat_id, BotMessange.FAQ,
@@ -233,6 +233,6 @@ class AsuBot:
 
 
 if __name__ == '__main__':
-    bot_token = 'API_KEY'
+    bot_token = '698328096:AAGj3J9OxEi0DeLCjYpaka3uHor67rd0oOg'
     my_bot = AsuBot(bot_token)
     my_bot.bot.polling(none_stop=True, interval=0)
