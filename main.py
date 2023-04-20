@@ -1,9 +1,9 @@
 import telebot
 import re
-from telebot import types
 
 import schedule_parser
 from message import BotMessange
+from keyboards import Keyboards
 from schedule_parser import SchedulePage
 from db import DB
 from schedule_parser import is_group
@@ -20,51 +20,6 @@ def parse_name_from_message(message):
     return f"{first_name} {last_name}".strip()
 
 
-def get_schedule_keyboard():
-    keyboard = telebot.types.ReplyKeyboardMarkup(row_width=3)
-    keyboard.add(*[telebot.types.KeyboardButton(btn) for btn in SCHEDULE])
-    keyboard.add(telebot.types.KeyboardButton("Назад"))
-    return keyboard
-
-
-def get_role_keyboard():
-    keyboard = types.ReplyKeyboardMarkup(row_width=len(ROLE))
-    keyboard.add(*[types.KeyboardButton(role.capitalize()) for role in ROLE])
-    keyboard.add(telebot.types.KeyboardButton("Назад"))
-    return keyboard
-
-
-def get_keyboard_menu():
-    keyboard = types.ReplyKeyboardMarkup(row_width=len(START_TEXT))
-    for btn in START_TEXT:
-        keyboard.add(types.KeyboardButton(btn))
-    keyboard.add(telebot.types.KeyboardButton("Назад"))
-    return keyboard
-
-
-def get_keyboard_faq():
-    keyboard = types.ReplyKeyboardMarkup(row_width=len(FAQ_TEXT))
-    for btn in FAQ_TEXT:
-        keyboard.add(types.KeyboardButton(btn))
-    keyboard.add(types.KeyboardButton('Назад'))
-    return keyboard
-
-
-def get_keyboard_domintory():
-    markdowns = types.ReplyKeyboardMarkup()
-    for btn in DOM_TEXT:
-        markdowns.add(types.KeyboardButton(btn))
-    markdowns.add(types.KeyboardButton('Назад'))
-    return markdowns
-
-
-ROLE = ["Студент", "Преподователь", "Абитуриент"]
-START_TEXT = ['Расписание', 'Заказать справку', 'Общежитие', 'Контакты', 'FAQ']
-FAQ_TEXT = ['Потерял студенческий/зачетку']
-DOM_TEXT = ["Заселение"]
-SCHEDULE = ["Предыдущая", "Текущая", "Следующая"]
-
-
 class AsuBot:
     def __init__(self, token):
         self.bot = telebot.TeleBot(token)
@@ -75,7 +30,7 @@ class AsuBot:
             if DB().is_admin(chat_id):
                 self.bot.send_message(chat_id, BotMessange.ADMIN_HELP)
             else:
-                self.bot.send_message(chat_id, BotMessange.HELP, reply_markup=get_keyboard_faq())
+                self.bot.send_message(chat_id, BotMessange.HELP, reply_markup=Keyboards.get_keyboard_faq())
 
         @self.bot.message_handler(commands=['start'])
         def start_message(message):
@@ -83,10 +38,10 @@ class AsuBot:
             user_data = DB().get_user(chat_id)
             if user_data:
                 self.bot.send_message(chat_id, BotMessange.WELCOME_MSG.format(user_data["username"]),
-                                      reply_markup=get_keyboard_menu())
+                                      reply_markup=Keyboards.get_keyboard_menu())
             else:
                 self.bot.send_message(chat_id, BotMessange.WELCOME_ASK,
-                                      reply_markup=get_role_keyboard())
+                                      reply_markup=Keyboards.get_role_keyboard())
 
         @self.bot.message_handler(commands=['me'])
         def send_me_message(message):
@@ -101,7 +56,7 @@ class AsuBot:
                                                                              user_data["role"]), parse_mode="HTML")
             else:
                 self.bot.send_message(chat_id, BotMessange.WELCOME_HELP_MSG,
-                                      reply_markup=get_role_keyboard())
+                                      reply_markup=Keyboards.get_role_keyboard())
 
         @self.bot.message_handler(commands=["update_group"])
         def send_update_group(message):
@@ -122,7 +77,7 @@ class AsuBot:
                                                                              user_data["role"]), parse_mode="HTML")
             else:
                 self.bot.send_message(chat_id, BotMessange.GROUP_HELP,
-                                      reply_markup=get_role_keyboard(),
+                                      reply_markup=Keyboards.get_role_keyboard(),
                                       parse_mode="HTML")
 
         @self.bot.message_handler(commands=["get_all"])
@@ -156,9 +111,9 @@ class AsuBot:
 
         @self.bot.message_handler(func=lambda message: message.text.lower() == "Назад".lower())
         def handle_menu(message):
-            self.bot.send_message(message.chat.id, "Меню", reply_markup=get_keyboard_menu())
+            self.bot.send_message(message.chat.id, "Меню", reply_markup=Keyboards.get_keyboard_menu())
 
-        @self.bot.message_handler(func=lambda message: message.text in SCHEDULE)
+        @self.bot.message_handler(func=lambda message: message.text in BotMessange.SCHEDULE)
         def handle_schedule_navigation(message):
             chat_id = message.chat.id
             user_data = DB().get_user(chat_id)
@@ -174,8 +129,7 @@ class AsuBot:
             elif message.text == "Следующая":
                 self.send_schedule(chat_id, user_data, schedule_date="1")
 
-
-        @self.bot.message_handler(func=lambda message: message.text in START_TEXT)
+        @self.bot.message_handler(func=lambda message: message.text in BotMessange.START_TEXT)
         def handle_start_navigation(message):
             chat_id = message.chat.id
             user_data = DB().get_user(chat_id)
@@ -197,7 +151,7 @@ class AsuBot:
 
             elif message.text == "FAQ":
                 self.bot.send_message(chat_id, BotMessange.FAQ,
-                                      reply_markup=get_keyboard_faq())
+                                      reply_markup=Keyboards.get_keyboard_faq())
 
         @self.bot.message_handler(func=lambda message: True)
         def handle_message(message):
@@ -271,7 +225,7 @@ class AsuBot:
             msg = SchedulePage(group=user_data["group"], date=schedule_date).get_messange()
             for line in msg:
                 self.bot.send_message(chat_id, line, parse_mode="HTML",
-                                      reply_markup=get_schedule_keyboard())
+                                      reply_markup=Keyboards.get_schedule_keyboard())
         except:
             self.bot.send_message(chat_id, BotMessange.SCHEDULE_ERROR)
             self.bot.send_message(chat_id, BotMessange.GROUP_HELP, parse_mode="HTML")
