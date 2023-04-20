@@ -1,5 +1,6 @@
 class BotMessange(object):
-    SPAVKA = u"В разработке"
+    SPAVKA = u"""В разработке"""
+
     FAQ = u"""Какой вопрос у тебя возник?"""
 
     CONTACT = u"""
@@ -142,18 +143,18 @@ class BotMessange(object):
     /forward всем
     """
 
-    WELCOME_HELP_MSG = u"Этот бот поможет тебе найти ответы на все твои вопросы"
-    WELCOME_MSG = u"Добро пожаловать {}"
-    WELCOME_ASK = u"Вы студент или преподователь"
+    WELCOME_HELP_MSG = u"""Этот бот поможет тебе найти ответы на все твои вопросы"""
+    WELCOME_MSG = u"""Добро пожаловать {}"""
+    WELCOME_ASK = u"""Вы студент или преподователь"""
 
     HELP = u"""Этот создан для помощи студентам"""
 
-    MENU = u"Меню"
+    MENU = u"""Меню"""
 
-    ADMIN_REPLAY_HELP = u"Пожалуйста зареплайте сообщение, которое хотите переслать"
+    ADMIN_REPLAY_HELP = u"""Пожалуйста зареплайте сообщение, которое хотите переслать"""
 
-    GROUP_REMIND = u"Введите номер вашей группы"
-    GROUP_HELP = u"Введите /update_group номер группы\nНапример <b>/update_group 507</b>"
+    GROUP_REMIND = u"""Введите номер вашей группы"""
+    GROUP_HELP = u"""Введите /update_group номер группы\nНапример <b>/update_group 507</b>"""
     ABOUT_USER = u"""id <b>{}</b>\nusername <b>{}</b>\ngroup <b>{}</b>\nphone_number <b>{}</b>\nrole <b>{}</b>\n"""
     UNREGISTER_USER = u"""Напишите /start чтобы начать общение"""
 
