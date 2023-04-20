@@ -67,7 +67,7 @@ class AsuBot:
             if user_data and is_group(group):
                 DB().update_user_group_by_id(chat_id, group)
 
-                self.bot.send_message(chat_id, "Ваши данные обновлены!")
+                self.bot.send_message(chat_id, BotMessange.DATA_UPDATE)
 
                 user_data = DB().get_user(chat_id)
                 self.bot.send_message(chat_id, BotMessange.ABOUT_USER.format(user_data["id"],
@@ -137,19 +137,19 @@ class AsuBot:
             if user_data is None:
                 return 0
 
-            if message.text == "Расписание":
+            if message.text == BotMessange.START_TEXT[0]:
                 self.send_schedule(chat_id, user_data, schedule_date="0")
 
-            elif message.text == "Заказать справк":
+            elif message.text == BotMessange.START_TEXT[1]:
                 self.bot.send_message(chat_id, BotMessange.SPAVKA)
 
-            elif message.text == "Общежитие":
-                self.bot.send_message(chat_id, BotMessange.SPAVKA)
+            elif message.text == BotMessange.START_TEXT[2]:
+                self.bot.send_message(chat_id, BotMessange.DOMINTORY)
 
-            elif message.text == "Контакты":
-                self.bot.send_message(chat_id, BotMessange.SPAVKA)
+            elif message.text == BotMessange.START_TEXT[3]:
+                self.bot.send_message(chat_id, BotMessange.CONTACT)
 
-            elif message.text == "FAQ":
+            elif message.text == BotMessange.START_TEXT[4]:
                 self.bot.send_message(chat_id, BotMessange.FAQ,
                                       reply_markup=Keyboards.get_keyboard_faq())
 
@@ -191,33 +191,34 @@ class AsuBot:
 
                 else:
                     self.bot.send_message(chat_id, BotMessange.UNREGISTER_USER)
+            
             # обработка всех сообщений студентов
             elif user_data["role"] == "student":
-                if message.text == "Расписание":
+                if message.text == BotMessange.START_TEXT[0]:
                     self.send_schedule(chat_id, user_data, schedule_date="0")
                 else:
-                    self.bot.send_message(chat_id, "Sorry, I didn't understand that.")
+                    self.bot.send_message(chat_id, BotMessange.ERROR)
 
             # Обработка всех сообщений преподователей
             elif user_data["role"] == "teacher":
-                if message.text == "Расписание":
+                if message.text == BotMessange.START_TEXT[0]:
                     self.send_schedule(chat_id, user_data, schedule_date="0")
                 else:
-                    self.bot.send_message(chat_id, "Sorry, I didn't understand that.")
+                    self.bot.send_message(chat_id, BotMessange.ERROR)
 
             # Обработка всех сообщений абитуриентов
             elif user_data['role'] == "applicant":
-                if message.text == "Расписание":
+                if message.text == BotMessange.START_TEXT[0]:
                     self.send_schedule(chat_id, user_data, schedule_date="0")
                 else:
-                    self.bot.send_message(chat_id, "Sorry, I didn't understand that.")
+                    self.bot.send_message(chat_id, BotMessange.ERROR)
 
             # Обработка всех сообщений админов
             elif user_data['role'] == "admin":
-                if message.text == "Расписание":
+                if message.text == BotMessange.START_TEXT[0]:
                     self.send_schedule(chat_id, user_data, schedule_date="0")
                 else:
-                    self.bot.send_message(chat_id, "Sorry, I didn't understand that.")
+                    self.bot.send_message(chat_id, BotMessange.ERROR)
 
     def send_schedule(self, chat_id, user_data, group=None, schedule_date=None):
         self.bot.send_message(chat_id, "Расписание для группы {}".format(user_data["group"]))
