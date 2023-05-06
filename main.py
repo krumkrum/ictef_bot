@@ -37,7 +37,7 @@ class AsuBot:
             chat_id = message.chat.id
             user_data = DB().get_user(chat_id)
             if user_data:
-                self.bot.send_message(chat_id, BotMessange.WELCOME_MSG.format(user_data["username"]),
+                self.bot.send_message(chat_id, BotMessange.WELCOME_MSG.format(parse_name_from_message(message)),
                                       reply_markup=Keyboards.get_keyboard_menu())
             else:
                 self.bot.send_message(chat_id, BotMessange.WELCOME_ASK,
@@ -50,7 +50,7 @@ class AsuBot:
             if user_data:
 
                 self.bot.send_message(chat_id, BotMessange.ABOUT_USER.format(user_data["id"],
-                                                                             user_data["username"],
+                                                                             parse_name_from_message(message),
                                                                              user_data["group"],
                                                                              user_data["phone_number"],
                                                                              user_data["role"]), parse_mode="HTML")
@@ -71,7 +71,7 @@ class AsuBot:
 
                 user_data = DB().get_user(chat_id)
                 self.bot.send_message(chat_id, BotMessange.ABOUT_USER.format(user_data["id"],
-                                                                             user_data["username"],
+                                                                             parse_name_from_message(message),
                                                                              user_data["group"],
                                                                              user_data["phone_number"],
                                                                              user_data["role"]), parse_mode="HTML")
@@ -87,7 +87,7 @@ class AsuBot:
             if DB().is_admin(chat_id):
                 for user_data in users:
                     self.bot.send_message(chat_id, BotMessange.ABOUT_USER.format(user_data["id"],
-                                                                                 user_data["username"],
+                                                                                 parse_name_from_message(message),
                                                                                  user_data["group"],
                                                                                  user_data["phone_number"],
                                                                                  user_data["role"]), parse_mode="HTML")
@@ -129,6 +129,17 @@ class AsuBot:
             elif message.text == "Следующая":
                 self.send_schedule(chat_id, user_data, schedule_date="1")
 
+        @self.bot.message_handler(func=lambda message: message.text in BotMessange.FAQ_TEXT)
+        def handle_start_navigation(message):
+            chat_id = message.chat.id
+            user_data = DB().get_user(chat_id)
+
+            if user_data is None:
+                return 0
+
+            if message.text == BotMessange.FAQ_TEXT[0]:
+                self.bot.send_message(chat_id, BotMessange.LOST_CART)
+
         @self.bot.message_handler(func=lambda message: message.text in BotMessange.START_TEXT)
         def handle_start_navigation(message):
             chat_id = message.chat.id
@@ -169,7 +180,7 @@ class AsuBot:
                     name = parse_name_from_message(message)
                     DB().add_student(user_id, name, "teacher", phone_number, "teacher")
 
-                    self.bot.send_message(chat_id, BotMessange.WELCOME_MSG.format(user_data["username"]))
+                    self.bot.send_message(chat_id, BotMessange.WELCOME_MSG.format(name))
 
                 elif message.text == "Абитуриент":
                     user_id = message.chat.id
@@ -233,6 +244,6 @@ class AsuBot:
 
 
 if __name__ == '__main__':
-    bot_token = '698328096:AAGj3J9OxEi0DeLCjYpaka3uHor67rd0oOg'
+    bot_token = '1913038657:AAGBUpXae9gnCOka4Kz0xKCQ2t_n1TiFhZA'
     my_bot = AsuBot(bot_token)
     my_bot.bot.polling(none_stop=True, interval=0)

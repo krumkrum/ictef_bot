@@ -79,7 +79,6 @@ class SchedulePage:
             lessons = lesson_group.findAll('div', class_="schedule_table-body-row")
             less = []
             for tags in lessons:
-
                 if "schedule_table-body-row__dropdown" not in tags['class']:
                     lesson = {}
                     cell = tags.findAll('div', class_="schedule_table-cell schedule_table-body-cell")
